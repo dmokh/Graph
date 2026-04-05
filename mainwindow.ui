@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
-    <height>589</height>
+    <width>1900</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,16 +19,16 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1011</width>
-      <height>500</height>
+      <width>1500</width>
+      <height>700</height>
      </rect>
     </property>
    </widget>
    <widget class="QCheckBox" name="CheckBox">
     <property name="geometry">
      <rect>
-      <x>650</x>
-      <y>510</y>
+      <x>640</x>
+      <y>710</y>
       <width>92</width>
       <height>25</height>
      </rect>
@@ -43,8 +43,8 @@
    <widget class="QPushButton" name="addTextButton">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>510</y>
+      <x>200</x>
+      <y>710</y>
       <width>90</width>
       <height>29</height>
      </rect>
@@ -56,8 +56,8 @@
    <widget class="QTextEdit" name="input">
     <property name="geometry">
      <rect>
-      <x>170</x>
-      <y>510</y>
+      <x>300</x>
+      <y>710</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -66,8 +66,8 @@
    <widget class="QPushButton" name="IncludeImageButton">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>510</y>
+      <x>490</x>
+      <y>710</y>
       <width>111</width>
       <height>29</height>
      </rect>
@@ -82,7 +82,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1100</width>
+     <width>1900</width>
      <height>25</height>
     </rect>
    </property>

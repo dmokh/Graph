@@ -18,15 +18,16 @@ MainWindow::MainWindow(QWidget *parent)
                 QString path = QFileDialog::getSaveFileName(this, tr("Open Image"), "C:/");
                 scene->includeImageWithpath(path);
             });
-    ui->GraphView->setSceneRect(0, 0, 1500, 2000);
+    width = 1480, height = 1500;
+    ui->GraphView->setSceneRect(0, 0, width, height);
     ui->GraphView->setScene(scene);
     ui->GraphView->setMouseTracking(true);
     QPen pen;
     pen.setColor(QColor(200, 200, 200));
     pen.setBrush(QColor(200, 200, 200));
     scene->setPen(pen);
-    for (int i = 20; i < 1500 - 20; i += 100) {
-        for (int j = 20; j < 2000 - 20; j += 100) {
+    for (int i = 20; i < width - 20; i += 100) {
+        for (int j = 20; j < height - 20; j += 100) {
             scene->addFillCircle(i, j, 10);
         }
     }

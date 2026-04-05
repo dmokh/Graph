@@ -114,6 +114,7 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                     vertexes.removeOne(attachedVertex);
                     isAttached = false;
                     attachedVertex = nullptr;
+                    continue;
                 }
                 qreal x = v->getCenter().x(), y = v->getCenter().y();
                 QVector<Edge* > for_delete;
@@ -131,7 +132,7 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                     }
                 }
                 for (Text* text : std::as_const(text_fields)) {
-                    if (text->pos().x() + 4 + 2 * (text->toPlainText().size() - 1) == v->getCenter().x() && text->pos().y() + 8 == v->getCenter().y()) {
+                    if (text->pos().x() + 2 + 3 * (text->toPlainText().size() - 1) == v->getCenter().x() && text->pos().y() + 8 == v->getCenter().y()) {
                         text_fields.removeOne(text);
                         removeItem(text);
                     }
@@ -171,10 +172,7 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                     QPen pen;
                     pen.setColor(QColor(255, 0, 0));
                     setPen(pen);
-
                     attachedVertex = addFillVertex(v->getCenter().x()-v->getRadius(), v->getCenter().y()-v->getRadius(), v->getRadius());
-
-
                     removeItem(v);
                     graph->removeVertex(v);
                     vertexes.removeOne(v);
@@ -231,8 +229,9 @@ void GraphScene::setHidden(bool isHidden_) {
         pen.setColor(QColor(200, 200, 200));
         pen.setBrush(QColor(200, 200, 200));
         setPen(pen);
-        for (int i = 20; i < 1500 - 20; i += 100) {
-            for (int j = 20; j < 2000 - 20; j += 100) {
+        qDebug() << sceneRect().width();
+        for (int i = 20; i < 1480 - 20; i += 100) {
+            for (int j = 20; j < 1200 - 20; j += 100) {
                 bool fl = false;
                 for (Vertex *v : std::as_const(vertexes)) {
                     if (QPointF(i+10, j+10) == v->getCenter()) {
@@ -263,13 +262,13 @@ void GraphScene::setHidden(bool isHidden_) {
 void GraphScene::addText() {
     if (isAttached) {
         for (Text* text : std::as_const(text_fields)) {
-            if (text->pos().x() + 4 + 2 * (text->toPlainText().size() - 1) == attachedVertex->getCenter().x() && text->pos().y() + 8 == attachedVertex->getCenter().y()) {
+            if (text->pos().x() + 2 + 3 * (text->toPlainText().size() - 1) == attachedVertex->getCenter().x() && text->pos().y() + 8 == attachedVertex->getCenter().y()) {
                 text_fields.removeOne(text);
                 removeItem(text);
             }
         }
-        Text* text = addTextField(attachedVertex->getCenter().x() - 4 - 2 * (input.size() - 1), attachedVertex->getCenter().y()-8, input);
-        text->setFont(QFont("times", 7));
+        Text* text = addTextField(attachedVertex->getCenter().x() - 2 - 3 * (input.size() - 1), attachedVertex->getCenter().y()-8, input);
+        text->setFont(QFont("times", 8));
         QPen pen;
         pen.setColor(QColor(0, 0, 0));
         setPen(pen);
@@ -287,10 +286,10 @@ void GraphScene::setInput(QString s) {
 
 void GraphScene::includeImageWithpath(QString path)
 {
-    this->clearSelection();                                                  // Selections would also render to the file
-    this->setSceneRect(this->itemsBoundingRect());                          // Re-shrink the scene to it's bounding contents
-    QImage image(this->sceneRect().size().toSize(), QImage::Format_ARGB32);  // Create the image with the exact size of the shrunk scene
-    image.fill(Qt::transparent);                                              // Start all pixels transparent
+    this->clearSelection();
+    this->setSceneRect(this->itemsBoundingRect());
+    QImage image(this->sceneRect().size().toSize(), QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
 
     QPainter painter(&image);
     this->render(&painter);

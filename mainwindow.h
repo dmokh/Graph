@@ -28,5 +28,6 @@ public slots:
 private:
     Ui::MainWindow *ui;
     GraphScene *scene;
+    qreal width, height;
 };
 #endif // MAINWINDOW_H
