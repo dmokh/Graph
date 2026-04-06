@@ -38,22 +38,26 @@ Circle* GraphScene::addFillCircle(qreal x, qreal y, qreal r)
     return circle;
 }
 
-Vertex* GraphScene::addVertex(qreal x, qreal y, qreal r)
+Vertex* GraphScene::addVertex(qreal x, qreal y, qreal r, bool updateVertexes = true)
 {
     Vertex* vertex = new Vertex(x, y, r);
     vertex->setPen(pen);
     addItem(vertex);
-    vertexes.push_back(vertex);
+    if (updateVertexes) {
+        vertexes.push_back(vertex);
+    }
     return vertex;
 }
 
-Vertex* GraphScene::addFillVertex(qreal x, qreal y, qreal r)
+Vertex* GraphScene::addFillVertex(qreal x, qreal y, qreal r, bool updateVertexes = true)
 {
     Vertex* vertex = new Vertex(x, y, r);
     vertex->setPen(pen);
     vertex->setBrush(pen.color());
     addItem(vertex);
-    vertexes.push_back(vertex);
+    if (updateVertexes) {
+        vertexes.push_back(vertex);
+    }
     return vertex;
 }
 
@@ -108,28 +112,23 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
             QRectF Rect = v->boundingRect();
             if (Rect.intersects(QRectF(p.x(), p.y(), 1, 1))) {
                 if (isAttached) {
-                    Vertex *v2 = addVertex(attachedVertex->getCenter().x()-attachedVertex->getRadius(), attachedVertex->getCenter().y()-attachedVertex->getRadius(), attachedVertex->getRadius());
-                    graph->addVertex(v2);
-                    removeItem(attachedVertex);
-                    vertexes.removeOne(attachedVertex);
+                    removeItem(attachedVertex->getColoredVertex());
+                    attachedVertex->setColoredVertex(nullptr);
                     isAttached = false;
                     attachedVertex = nullptr;
-                    continue;
+                    return;
                 }
                 qreal x = v->getCenter().x(), y = v->getCenter().y();
                 QVector<Edge* > for_delete;
-                for (Edge *edge : std::as_const(edges)) {
-                    qreal dx = edge->getDX();
-                    qreal dy = edge->getDY();
-                    qreal dl = qSqrt(edge->getDX()*edge->getDX() + edge->getDY()*edge->getDY());
-                    qreal x1 = edge->getBegin().x();
-                    qreal y1 = edge->getBegin().y();
-                    qreal x2 = edge->getEnd().x();
-                    qreal y2 = edge->getEnd().y();
-                    if ((abs(x1 - 30 * dx / dl - v->getCenter().x()) < 0.001 && abs(y1 - 30 * dy / dl - v->getCenter().y()) < 0.001) || (abs(x2 + 30 * dx / dl - v->getCenter().x()) < 0.001 && abs(y2 + 30 * dy / dl - v->getCenter().y()) < 0.001)) {
-                        removeItem(edge);
-                        edges.removeOne(edge);
+                for (Edge *edge : v->getEdges()) {
+                    v->deleteEdge(edge);
+                    for (Vertex *u : v->getNeighbors()) {
+                        if (u->getEdges().contains(edge)) {
+                            u->deleteEdge(edge);
+                        }
                     }
+                    removeItem(edge);
+                    edges.removeOne(edge);
                 }
                 for (Text* text : std::as_const(text_fields)) {
                     if (text->pos().x() + 2 + 3 * (text->toPlainText().size() - 1) == v->getCenter().x() && text->pos().y() + 8 == v->getCenter().y()) {
@@ -172,29 +171,28 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                     QPen pen;
                     pen.setColor(QColor(255, 0, 0));
                     setPen(pen);
-                    attachedVertex = addFillVertex(v->getCenter().x()-v->getRadius(), v->getCenter().y()-v->getRadius(), v->getRadius());
-                    removeItem(v);
-                    graph->removeVertex(v);
-                    vertexes.removeOne(v);
-                    graph->addVertex(attachedVertex);
+                    attachedVertex = v;
+                    Vertex* coloredVertex = addFillVertex(v->getCenter().x()-v->getRadius(), v->getCenter().y()-v->getRadius(), v->getRadius(), false);
+                    v->setColoredVertex(coloredVertex);
                 } else if (v != attachedVertex && !v->getNeighbors().contains(attachedVertex)) {
                     QPen pen;
                     pen.setColor(QColor(0, 0, 0));
                     setPen(pen);
                     qreal x = v->getCenter().x() - attachedVertex->getCenter().x();
                     qreal y = v->getCenter().y() - attachedVertex->getCenter().y();
-                    addEdge(attachedVertex->getCenter().x() + 30 * x / qSqrt(x*x + y*y),
-                            attachedVertex->getCenter().y() + 30 * y / qSqrt(x*x + y*y),
-                            v->getCenter().x() - 30 * x / qSqrt(x*x + y*y),
-                            v->getCenter().y() - 30 * y / qSqrt(x*x + y*y),
-                            v->getCenter().x() - attachedVertex->getCenter().x(),
-                            v->getCenter().y() - attachedVertex->getCenter().y());
-                    Vertex *v = addVertex(attachedVertex->getCenter().x()-attachedVertex->getRadius(), attachedVertex->getCenter().y()-attachedVertex->getRadius(), attachedVertex->getRadius());
-                    graph->addVertex(v);
-                    removeItem(attachedVertex);
-                    vertexes.removeOne(attachedVertex);
+                    Edge* new_edge = addEdge(attachedVertex->getCenter().x() + 30 * x / qSqrt(x*x + y*y),
+                                             attachedVertex->getCenter().y() + 30 * y / qSqrt(x*x + y*y),
+                                             v->getCenter().x() - 30 * x / qSqrt(x*x + y*y),
+                                             v->getCenter().y() - 30 * y / qSqrt(x*x + y*y),
+                                             v->getCenter().x() - attachedVertex->getCenter().x(),
+                                             v->getCenter().y() - attachedVertex->getCenter().y());
+                    v->addEdge(new_edge);
+                    attachedVertex->addEdge(new_edge);
                     v->addNeighbor(attachedVertex);
                     attachedVertex->addNeighbor(v);
+
+                    removeItem(attachedVertex->getColoredVertex());
+                    attachedVertex->setColoredVertex(nullptr);
                     isAttached = false;
                     attachedVertex = nullptr;
                 }
@@ -231,7 +229,7 @@ void GraphScene::setHidden(bool isHidden_) {
         setPen(pen);
         qDebug() << sceneRect().width();
         for (int i = 20; i < 1480 - 20; i += 100) {
-            for (int j = 20; j < 1200 - 20; j += 100) {
+            for (int j = 20; j < 1500 - 20; j += 100) {
                 bool fl = false;
                 for (Vertex *v : std::as_const(vertexes)) {
                     if (QPointF(i+10, j+10) == v->getCenter()) {
@@ -248,12 +246,8 @@ void GraphScene::setHidden(bool isHidden_) {
         setPen(pen);
         QVector<Edge* > new_edges;
         for (Edge* edge : std::as_const(edges)) {
-            try {
-                removeItem(edge);
-                new_edges.push_back(addEdge(edge->getBegin().x(), edge->getBegin().y(), edge->getEnd().x(), edge->getEnd().y(), edge->getEnd().x() - edge->getBegin().x(), edge->getEnd().y()-edge->getBegin().y()));
-            } catch (...) {
-                continue;
-            }
+            removeItem(edge);
+            new_edges.push_back(addEdge(edge->getBegin().x(), edge->getBegin().y(), edge->getEnd().x(), edge->getEnd().y(), edge->getEnd().x() - edge->getBegin().x(), edge->getEnd().y()-edge->getBegin().y()));
         }
         edges = new_edges;
     }

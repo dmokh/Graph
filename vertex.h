@@ -15,11 +15,16 @@ public:
     void deleteEdge(Edge* e);
     void clearEdges();
     QVector<Vertex *> getNeighbors();
-    QVector<Edge* > getEdges();
+    QVector<Edge* > getEdges() const;
     QRectF boundingRect() const override;
     QPointF getCenter();
     qreal getRadius();
+
+    Vertex *getColoredVertex() const;
+    void setColoredVertex(Vertex *newColoredVertex);
+
 private:
+    Vertex* coloredVertex;
     QVector<Edge* > edges;
     QVector<Vertex *> neighbors;
     qreal radius;

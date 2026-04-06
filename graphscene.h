@@ -19,8 +19,8 @@ public:
     void addRect(qreal x, qreal y, qreal width, qreal height);
     Circle* addCircle(qreal x, qreal y, qreal r);
     Circle* addFillCircle(qreal x, qreal y, qreal r);
-    Vertex* addVertex(qreal x, qreal y, qreal r);
-    Vertex* addFillVertex(qreal x, qreal y, qreal r);
+    Vertex* addVertex(qreal x, qreal y, qreal r, bool updateVertexes);
+    Vertex* addFillVertex(qreal x, qreal y, qreal r, bool updateVertexes);
     Text* addTextField(qreal x, qreal y, QString s);
     Edge* addEdge(qreal x1, qreal y1, qreal x2, qreal y2, qreal dx, qreal dy);
     void setPen(QPen new_pen);

@@ -24,7 +24,7 @@ void Vertex::deleteEdge(Edge* e) {
 void Vertex::clearEdges() {
     edges.clear();
 }
-QVector<Edge* > Vertex::getEdges() {
+QVector<Edge* > Vertex::getEdges() const {
     return edges;
 }
 QRectF Vertex::boundingRect() const {
@@ -35,5 +35,15 @@ QPointF Vertex::getCenter() {
 }
 qreal Vertex::getRadius() {
     return radius;
+}
+
+Vertex *Vertex::getColoredVertex() const
+{
+    return coloredVertex;
+}
+
+void Vertex::setColoredVertex(Vertex *newColoredVertex)
+{
+    coloredVertex = newColoredVertex;
 }
 
