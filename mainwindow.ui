@@ -76,6 +76,29 @@
      <string>Include Image</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="ResizePushButton">
+    <property name="geometry">
+     <rect>
+      <x>840</x>
+      <y>710</y>
+      <width>90</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Resize</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="HeightInput">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>710</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

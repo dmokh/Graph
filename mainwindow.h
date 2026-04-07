@@ -20,11 +20,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void setInput(QString s);
+    void resizeHeight(qreal newHeight);
 signals:
-    void sendInput();
 public slots:
-    void addTextButtonPushed();
 private:
     Ui::MainWindow *ui;
     GraphScene *scene;

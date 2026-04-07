@@ -233,7 +233,7 @@ void GraphScene::setHidden(bool isHidden_) {
         c->setVisible(!isHidden);
     }
 }
-void GraphScene::addText() {
+void GraphScene::addText(QString input) {
     if (isAttached) {
         for (Text* text : std::as_const(text_fields)) {
             if (text->pos().x() + 2 + 3 * (text->toPlainText().size() - 1) == attachedVertex->getCenter().x() && text->pos().y() + 8 == attachedVertex->getCenter().y()) {
@@ -243,13 +243,9 @@ void GraphScene::addText() {
         }
         Text* text = addTextField(attachedVertex->getCenter().x() - 2 - 3 * (input.size() - 1), attachedVertex->getCenter().y()-8, input);
         text->setFont(QFont("times", 8));
-        QPen pen;
-        pen.setColor(QColor(0, 0, 0));
-        setPen(pen);
-        Vertex *v = addVertex(attachedVertex->getCenter().x()-attachedVertex->getRadius(), attachedVertex->getCenter().y()-attachedVertex->getRadius(), attachedVertex->getRadius());
-        graph->addVertex(v);
-        removeItem(attachedVertex);
-        vertexes.removeOne(attachedVertex);
+
+        removeItem(attachedVertex->getColoredVertex());
+        attachedVertex->setColoredVertex(nullptr);
         isAttached = false;
         attachedVertex = nullptr;
     }

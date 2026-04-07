@@ -36,7 +36,7 @@ signals:
     void inputChanged();
 public slots:
     void setHidden(bool isHidden);
-    void addText();
+    void addText(QString input);
     void includeImageWithpath(QString path);
 private:
     QVector<Circle *> field;
