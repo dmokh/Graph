@@ -139,12 +139,11 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                 graph->removeVertex(v);
                 removeItem(v);
                 vertexes.removeOne(v);
-                if (!isHidden) {
-                    QPen new_pen;
-                    new_pen.setColor(QColor(200, 200, 200));
-                    setPen(new_pen);
-                    addFillCircle(x - 10, y - 10, 10);
-                }
+                QPen new_pen;
+                new_pen.setColor(QColor(200, 200, 200));
+                setPen(new_pen);
+                Circle* c = addFillCircle(x - 10, y - 10, 10);
+                c->setVisible(!isHidden);
                 return;
             }
         }
@@ -168,16 +167,17 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
             if (Rect.intersects(QRectF(p.x(), p.y(), 1, 1))) {
                 if (!isAttached) {
                     isAttached = true;
-                    QPen pen;
-                    pen.setColor(QColor(255, 0, 0));
-                    setPen(pen);
+                    QPen newPen;
+                    newPen.setColor(QColor(255, 0, 0));
+                    setPen(newPen);
                     attachedVertex = v;
                     Vertex* coloredVertex = addFillVertex(v->getCenter().x()-v->getRadius(), v->getCenter().y()-v->getRadius(), v->getRadius(), false);
                     v->setColoredVertex(coloredVertex);
                 } else if (v != attachedVertex && !v->getNeighbors().contains(attachedVertex)) {
-                    QPen pen;
-                    pen.setColor(QColor(0, 0, 0));
-                    setPen(pen);
+                    QPen newPen;
+                    newPen.setColor(QColor(0, 0, 0));
+                    newPen.setWidth(1);
+                    setPen(newPen);
                     qreal x = v->getCenter().x() - attachedVertex->getCenter().x();
                     qreal y = v->getCenter().y() - attachedVertex->getCenter().y();
                     Edge* new_edge = addEdge(attachedVertex->getCenter().x() + 30 * x / qSqrt(x*x + y*y),
@@ -201,6 +201,17 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
         }
         for (Edge *edge : std::as_const(edges)) {
             if (edge->intersection(e->scenePos())) {
+                for (Vertex* v : std::as_const(vertexes)) {
+                    if (v->getEdges().contains(edge)) {
+                        for (Vertex* u : v->getNeighbors()) {
+                            if (u->getEdges().contains(edge)) {
+                                v->deleteNeighbor(u);
+                                u->deleteNeighbor(v);
+                            }
+                        }
+                        v->deleteEdge(edge);
+                    }
+                }
                 removeItem(edge);
                 edges.removeOne(edge);
             }
@@ -217,41 +228,10 @@ Graph* GraphScene::getGraph() {
 }
 
 void GraphScene::setHidden(bool isHidden_) {
-    if (isHidden_) {
-        for (Circle *c : std::as_const(field)) {
-            removeItem(c);
-            field.removeOne(c);
-        }
-    } else {
-        QPen pen;
-        pen.setColor(QColor(200, 200, 200));
-        pen.setBrush(QColor(200, 200, 200));
-        setPen(pen);
-        qDebug() << sceneRect().width();
-        for (int i = 20; i < 1480 - 20; i += 100) {
-            for (int j = 20; j < 1500 - 20; j += 100) {
-                bool fl = false;
-                for (Vertex *v : std::as_const(vertexes)) {
-                    if (QPointF(i+10, j+10) == v->getCenter()) {
-                        fl = true;
-                        break;
-                    }
-                }
-                if (!fl) {
-                    addFillCircle(i, j, 10);
-                }
-            }
-        }
-        pen.setColor(QColor(0, 0, 0));
-        setPen(pen);
-        QVector<Edge* > new_edges;
-        for (Edge* edge : std::as_const(edges)) {
-            removeItem(edge);
-            new_edges.push_back(addEdge(edge->getBegin().x(), edge->getBegin().y(), edge->getEnd().x(), edge->getEnd().y(), edge->getEnd().x() - edge->getBegin().x(), edge->getEnd().y()-edge->getBegin().y()));
-        }
-        edges = new_edges;
-    }
     isHidden = isHidden_;
+    for (Circle *c : std::as_const(field)) {
+        c->setVisible(!isHidden);
+    }
 }
 void GraphScene::addText() {
     if (isAttached) {
