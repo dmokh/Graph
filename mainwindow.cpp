@@ -43,9 +43,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::resizeHeight(qreal newHeight)
 {
+    ui->CheckBox->setChecked(false);
     height = newHeight;
     qDebug() << "ok\n";
     scene = new GraphScene();
+    connect(ui->CheckBox, &QCheckBox::checkStateChanged, scene, &GraphScene::setHidden);
     ui->GraphView->setScene(scene);
     qDebug() << "ok\n";
     ui->GraphView->setSceneRect(0, 0, width, height);
