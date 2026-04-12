@@ -3,6 +3,7 @@
 #include <QVector>
 #include <QGraphicsEllipseItem>
 #include "edge.h"
+#include "text.h"
 class Vertex : public QGraphicsEllipseItem
 {
 public:
@@ -23,13 +24,17 @@ public:
     Vertex *getColoredVertex() const;
     void setColoredVertex(Vertex *newColoredVertex);
 
+    Text *getText() const;
+    void setText(Text *newText);
+
 private:
-    Vertex* coloredVertex;
+    Vertex* coloredVertex = nullptr;
+    Text* text = nullptr;
     QVector<Edge* > edges;
     QVector<Vertex *> neighbors;
     qreal radius;
     QPointF center;
-    QRectF boundingrect;
+    QRectF boundingrect;  
 };
 
 #endif // VERTEX_H

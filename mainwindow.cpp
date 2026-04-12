@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     scene = new GraphScene(this);
     connect(ui->CheckBox, &QCheckBox::checkStateChanged, scene, &GraphScene::setHidden);
     connect(ui->addTextButton, &QPushButton::pressed, scene, [&](){scene->addText(ui->input->toPlainText());});
+    connect(scene, &GraphScene::vertexAttached, this, &MainWindow::changeText);
     connect(ui->ResizePushButton, &QPushButton::pressed, this,
             [&](){
                 resizeHeight((qreal)ui->HeightInput->toPlainText().toShort());
@@ -21,8 +22,9 @@ MainWindow::MainWindow(QWidget *parent)
                 scene->includeImageWithpath(path);
             });
     width = 1480, height = 680;
-    ui->GraphView->setSceneRect(0, 0, width, height);
     ui->GraphView->setScene(scene);
+    scene->setSceneRect(0, 0, width, height);
+    ui->GraphView->setSceneRect(0, 0, width, height);
     ui->GraphView->setMouseTracking(true);
     QPen pen;
     pen.setColor(QColor(200, 200, 200));
@@ -34,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
     }
     scene->setGraph(new Graph());
+
 }
 
 MainWindow::~MainWindow()
@@ -48,6 +51,7 @@ void MainWindow::resizeHeight(qreal newHeight)
     qDebug() << "ok\n";
     scene = new GraphScene();
     connect(ui->CheckBox, &QCheckBox::checkStateChanged, scene, &GraphScene::setHidden);
+    connect(scene, &GraphScene::vertexAttached, this, &MainWindow::changeText);
     ui->GraphView->setScene(scene);
     qDebug() << "ok\n";
     ui->GraphView->setSceneRect(0, 0, width, height);
@@ -61,4 +65,8 @@ void MainWindow::resizeHeight(qreal newHeight)
         }
     }
     scene->setGraph(new Graph());
+}
+
+void MainWindow::changeText(QString s) {
+    ui->input->setText(s);
 }

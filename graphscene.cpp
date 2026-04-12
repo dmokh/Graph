@@ -64,6 +64,7 @@ Vertex* GraphScene::addFillVertex(qreal x, qreal y, qreal r, bool updateVertexes
 
 Edge* GraphScene::addEdge(qreal x1, qreal y1, qreal x2, qreal y2, qreal dx, qreal dy) {
     Edge* edge = new Edge(QPointF(x1, y1), QPointF(x2, y2), dx, dy);
+    pen.setWidth(2);
     edge->setPen(pen);
     addItem(edge);
     edges.push_back(edge);
@@ -71,7 +72,7 @@ Edge* GraphScene::addEdge(qreal x1, qreal y1, qreal x2, qreal y2, qreal dx, qrea
 }
 
 Text* GraphScene::addTextField(qreal x, qreal y, QString s) {
-    Text* text = new Text(x, y, s);
+    Text* text = new Text(x - 6, y - 5, s);
     text_fields.push_back(text);
     addItem(text);
     return text;
@@ -130,11 +131,10 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                     removeItem(edge);
                     edges.removeOne(edge);
                 }
-                for (Text* text : std::as_const(text_fields)) {
-                    if (text->pos().x() + 2 + 3 * (text->toPlainText().size() - 1) == v->getCenter().x() && text->pos().y() + 8 == v->getCenter().y()) {
-                        text_fields.removeOne(text);
-                        removeItem(text);
-                    }
+                if (v->getText() != nullptr) {
+                    removeItem(v->getText());
+                    text_fields.removeOne(v->getText());
+                    v->setText(nullptr);
                 }
                 graph->removeVertex(v);
                 removeItem(v);
@@ -173,6 +173,10 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                     attachedVertex = v;
                     Vertex* coloredVertex = addFillVertex(v->getCenter().x()-v->getRadius(), v->getCenter().y()-v->getRadius(), v->getRadius(), false);
                     v->setColoredVertex(coloredVertex);
+                    qDebug() << v->getText() << '\n';
+                    if (v->getText() != nullptr) {
+                        emit vertexAttached(v->getText()->toPlainText());
+                    }
                 } else if (v != attachedVertex && !v->getNeighbors().contains(attachedVertex)) {
                     QPen newPen;
                     newPen.setColor(QColor(0, 0, 0));
@@ -180,12 +184,11 @@ void GraphScene::mousePressEvent(QGraphicsSceneMouseEvent *e) {
                     setPen(newPen);
                     qreal x = v->getCenter().x() - attachedVertex->getCenter().x();
                     qreal y = v->getCenter().y() - attachedVertex->getCenter().y();
-                    Edge* new_edge = addEdge(attachedVertex->getCenter().x() + 30 * x / qSqrt(x*x + y*y),
-                                             attachedVertex->getCenter().y() + 30 * y / qSqrt(x*x + y*y),
-                                             v->getCenter().x() - 30 * x / qSqrt(x*x + y*y),
-                                             v->getCenter().y() - 30 * y / qSqrt(x*x + y*y),
-                                             v->getCenter().x() - attachedVertex->getCenter().x(),
-                                             v->getCenter().y() - attachedVertex->getCenter().y());
+                    Edge* new_edge = addEdge(attachedVertex->getCenter().x() + 30.0 * x / qSqrt(x*x + y*y),
+                                             attachedVertex->getCenter().y() + 30.0 * y / qSqrt(x*x + y*y),
+                                             v->getCenter().x() - 30.0 * x / qSqrt(x*x + y*y),
+                                             v->getCenter().y() - 30.0 * y / qSqrt(x*x + y*y),
+                                             x, y);
                     v->addEdge(new_edge);
                     attachedVertex->addEdge(new_edge);
                     v->addNeighbor(attachedVertex);
@@ -235,15 +238,23 @@ void GraphScene::setHidden(bool isHidden_) {
 }
 void GraphScene::addText(QString input) {
     if (isAttached) {
-        for (Text* text : std::as_const(text_fields)) {
-            if (text->pos().x() + 2 + 3 * (text->toPlainText().size() - 1) == attachedVertex->getCenter().x() && text->pos().y() + 8 == attachedVertex->getCenter().y()) {
-                text_fields.removeOne(text);
-                removeItem(text);
-            }
+        if (attachedVertex->getText() != nullptr) {
+            removeItem(attachedVertex->getText());
+            text_fields.removeOne(attachedVertex->getText());
+            attachedVertex->setText(nullptr);
         }
-        Text* text = addTextField(attachedVertex->getCenter().x() - 2 - 3 * (input.size() - 1), attachedVertex->getCenter().y()-8, input);
-        text->setFont(QFont("times", 8));
-
+        QFontMetrics *qfm = new QFontMetrics(QFont("times", 7));
+        QRect textBoundingRect = qfm->boundingRect(input);
+        textBoundingRect.setRect(attachedVertex->getCenter().x() - textBoundingRect.width() / 2,
+                                   attachedVertex->getCenter().y() - textBoundingRect.height() / 2,
+                                   textBoundingRect.width(),
+                                   textBoundingRect.height());
+        pen.setColor(QColor(0, 0, 0));
+        //addItem(new QGraphicsRectItem(textBoundingRect));
+        qDebug() << textBoundingRect.width() << textBoundingRect.height() << input << textBoundingRect.x() << attachedVertex->getCenter().x() - textBoundingRect.width() / 2;
+        Text* text = addTextField(textBoundingRect.topLeft().x(), textBoundingRect.topLeft().y(), input);
+        text->setFont(QFont("times", 7));
+        attachedVertex->setText(text);
         removeItem(attachedVertex->getColoredVertex());
         attachedVertex->setColoredVertex(nullptr);
         isAttached = false;

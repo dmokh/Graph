@@ -23,6 +23,7 @@ public:
     void resizeHeight(qreal newHeight);
 signals:
 public slots:
+    void changeText(QString s);
 private:
     Ui::MainWindow *ui;
     GraphScene *scene;

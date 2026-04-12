@@ -3,7 +3,7 @@
 Vertex::Vertex() {};
 Vertex::Vertex(qreal x, qreal y, qreal r)
     : QGraphicsEllipseItem(x, y, 2 * r, 2 * r),
-    center(x+r, y+r), radius(r), boundingrect(x-0.5, y-0.5, 2 * r+1, 2 * r+1) {
+    radius(r), center(x+r, y+r), boundingrect(x-0.5, y-0.5, 2 * r+1, 2 * r+1) {
 }
 Vertex::~Vertex() {};
 void Vertex::addNeighbor(Vertex* neighbor) {
@@ -45,5 +45,15 @@ Vertex *Vertex::getColoredVertex() const
 void Vertex::setColoredVertex(Vertex *newColoredVertex)
 {
     coloredVertex = newColoredVertex;
+}
+
+Text *Vertex::getText() const
+{
+    return text;
+}
+
+void Vertex::setText(Text *newText)
+{
+    text = newText;
 }
 

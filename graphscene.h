@@ -34,6 +34,7 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *e);
 signals:
     void inputChanged();
+    void vertexAttached(QString s);
 public slots:
     void setHidden(bool isHidden);
     void addText(QString input);

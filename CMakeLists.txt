@@ -33,6 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         vertex.h vertex.cpp
         edge.h edge.cpp
         text.h text.cpp
+        Graph.pro
 
 
 
